@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "my-project-1555058661158": {
+      "hosting": {
+        "four-in-line": [
+          "my-project-1555058661158"
+        ]
+      }
+    }
+  }
+}
