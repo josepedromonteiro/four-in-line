@@ -29,7 +29,7 @@ export class HudComponent implements AfterViewInit {
 
     if (this.copyLinkBtn) {
       const clipboard = new Clipboard(this.copyLinkBtn._getHostElement(), {
-        text: () => `https://${environment.firebaseConfig.authDomain}/${this.matchId}`
+        text: () => `${this.matchId}`
       });
     }
 
