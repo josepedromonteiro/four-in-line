@@ -1,5 +1,4 @@
 @import "variables";
-
 html,
 body {
   margin: 0;
@@ -13,4 +12,10 @@ body {
 
 app-root {
   height: 100%;
+}
+
+.game-input{
+  height: 60px;
+  width: 100%;
+  border-radius: 10px;
 }

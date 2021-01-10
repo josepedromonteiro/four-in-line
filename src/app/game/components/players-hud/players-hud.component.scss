@@ -72,11 +72,11 @@ app-players-hud {
     }
 
     .player1 {
-      background: $player1;
+      background: var(--player-1-color);
     }
 
     .player2 {
-      background: $player2;
+      background: var(--player-2-color);
     }
 
     .active {

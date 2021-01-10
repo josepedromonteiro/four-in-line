@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
 import { RouterModule, Routes } from '@angular/router';
 import { StartComponent } from './containers/start/start.component';
+import { FormsModule } from '@angular/forms';
 
 const ROUTES: Routes = [{path: '', component: StartComponent}];
 
@@ -11,7 +12,8 @@ const ROUTES: Routes = [{path: '', component: StartComponent}];
   ],
   imports: [
     SharedModule,
-    RouterModule.forChild(ROUTES)
+    RouterModule.forChild(ROUTES),
+    FormsModule
   ]
 })
 export class StartModule {

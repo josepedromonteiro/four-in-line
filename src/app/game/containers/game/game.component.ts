@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { StateProps, Store } from '../../../store';
 import { GameService } from '../../../shared/services/game.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,14 +11,15 @@ import { Players } from '../../../models/players.model';
 import { MatchSettings } from '../../../models/match-settings.model';
 import { PlayerValue } from '../../../shared/enums/player-value.enum';
 import { DEFAULTS } from '../../../defaults';
-import { combineLatest, Observable, Subscription } from 'rxjs';
+import { combineLatest, Observable, Subscription, throwError } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { first, switchMap, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
-  styleUrls: ['./game.component.scss']
+  styleUrls: ['./game.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class GameComponent implements OnInit, OnDestroy {
 
@@ -54,9 +55,8 @@ export class GameComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap(({ id }) => this.gameService.matchExists(id)),
         switchMap(matchId => {
-
           if (!matchId) {
-            return Observable.throw('Match not found');
+            return throwError('Match not found');
           }
 
           this.gameService.setMatchId(matchId);

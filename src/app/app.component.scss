@@ -1,5 +1,16 @@
-.toolbar-title {
-  flex: 1;
-  cursor: pointer;
-  outline: none !important;
+app-root{
+  .toolbar{
+    position: sticky;
+    top: 0;
+    //box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    opacity: .90;
+  }
+  .toolbar-title {
+    flex: 1;
+    cursor: pointer;
+    outline: none !important;
+    font-size: 20px;
+  }
+
 }

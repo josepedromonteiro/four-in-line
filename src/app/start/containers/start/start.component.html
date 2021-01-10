@@ -1,9 +1,35 @@
-<div class="tac mt40">
-  <button
-    (click)="newGame()"
-    type="button"
-    mat-raised-button
-    color="primary">
-    Host match
-  </button>
+<div class="start-page">
+  <div class="new-game"
+       [ngClass]="{'expanded' : viewData.leftExpanded == ANIMATION_STATE.OPENED,
+                   'closed':  viewData.leftExpanded == ANIMATION_STATE.CLOSED}">
+    <div class="clickable-area"
+         (click)="expandLeft()">
+      Create new match
+    </div>
+    <div class="player-name">
+      <h1>Your player name</h1>
+      <input class="game-input" [(ngModel)]="playerName"/>
+
+      <div class="toolbar" (click)="newGame()">
+        <button class="offset">Start new game</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="participate-game"
+       [ngClass]="{'expanded' : viewData.rightExpanded == ANIMATION_STATE.OPENED,
+                   'closed':  viewData.rightExpanded == ANIMATION_STATE.CLOSED}">
+    <div class="clickable-area"
+         (click)="expandRight()">
+      Participate in Game
+    </div>
+    <div class="player-name">
+      <h1>Game ID</h1>
+      <input class="game-input" [(ngModel)]="gameId"/>
+      <div class="toolbar">
+        <button class="offset" (click)="enrollGame()">Enroll Game</button>
+      </div>
+    </div>
+  </div>
 </div>

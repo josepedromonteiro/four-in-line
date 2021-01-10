@@ -1,0 +1,12 @@
+app-game {
+  background: var(--primary);
+  height: calc(100% - 64px);
+
+  display: flex;
+  flex-direction: column;
+
+  app-board {
+    flex-grow: 1;
+  }
+
+}

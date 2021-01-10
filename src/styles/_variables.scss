@@ -1,3 +1,11 @@
+:root{
+  --transition-function: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition: all 0.9s var(--transition-function);
+  --primary: #3f51b5;
+  --player-1-color: #ff69b4;
+  --player-2-color: #06aab4;
+}
+
 // general
 $body-bg: #f8f8f8;
 $primary: #DC4437;
@@ -8,14 +16,14 @@ $input-label-color: #2ca6e9;
 $input-underline-color: #2ca6e9;
 
 // players
-$player1: #546A76;
-$player2: #30BCED;
+$player1: #ff69b4;
+$player2: #06aab4;
 
 // board
-$board-bg: #dadada;
-$board-cell-size: 32px;
-$board-border-radius: 15px;
-$board-cell-padding: 5px;
+$board-bg: rgba(0, 0, 0, 0.2);
+$board-cell-size: 50px;
+$board-border-radius: 30px;
+$board-cell-padding: 10px;
 
 // winner and loser
 $winner-overlay-bg: #8BC34A;
