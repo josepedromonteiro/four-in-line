@@ -11,7 +11,7 @@
     "e2e": "ng e2e",
     "electron": "electron .",
     "build::electron": "ng build && electron .",
-    "package::win": "ng build --prod && electron-packager . --overwrite --platform=win32 --arch=x64 --icon=src/assets/native/icon.ico --prune=true --out=release-builds",
+    "package::win": "ng build --prod && electron-packager . --overwrite --asar=true --platform=win32 --arch=x64 --icon=src/assets/native/icon.ico --prune=true --out=release-builds",
     "package::mac": "ng build --prod && electron-packager . --overwrite --asar=true --platform=darwin --arch=x64 --icon=src/assets/native/icon.icns --prune=true --out=release-builds"
   },
   "private": true,
