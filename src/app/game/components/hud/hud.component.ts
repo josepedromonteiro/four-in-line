@@ -1,9 +1,9 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, Input, ViewChild } from '@angular/core';
 import { Player } from '../../../models/player.model';
 import { PlayerRole } from '../../../shared/enums/player-role.enum';
-import { environment } from '../../../../environments/environment';
 import * as Clipboard from 'clipboard';
 import { MatButton } from '@angular/material/button';
+import { VoiceRecognitionService } from 'src/app/shared/services/voice-recognition.service'
 
 @Component({
   selector: 'app-hud',
@@ -25,14 +25,18 @@ export class HudComponent implements AfterViewInit {
   @ViewChild('copyLinkBtn')
   copyLinkBtn: MatButton;
 
-  ngAfterViewInit() {
+  isSpeechRecognitionEnabled: boolean = false
 
+  constructor(public service: VoiceRecognitionService) {
+    this.service.init()
+  }
+
+  ngAfterViewInit() {
     if (this.copyLinkBtn) {
       const clipboard = new Clipboard(this.copyLinkBtn._getHostElement(), {
         text: () => `${this.matchId}`
       });
     }
-
   }
 
   get isPlayer1() {
@@ -43,4 +47,15 @@ export class HudComponent implements AfterViewInit {
     }
   }
 
+  enableSpeechRecognition() {
+    console.log("enabled")
+    this.service.start()
+    this.isSpeechRecognitionEnabled = true
+  }
+
+  disableSpeechRecognition() {
+    console.log("disabled")
+    this.service.stop()
+    this.isSpeechRecognitionEnabled = false
+  }
 }
