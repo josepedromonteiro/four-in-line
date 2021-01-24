@@ -42,20 +42,22 @@ export class LocalStorageService {
   setMyRoleForMatch(matchId: string, role: PlayerRole) {
     const data = this.get();
     data.match[matchId] = role;
+    console.log('set role', data);
     localStorage.setItem(this.STORAGE_ID, JSON.stringify(data));
   }
 
   getMyRoleForMatch(matchId: string): PlayerRole {
     const data = this.get();
     const role = data.match[matchId];
-    if (role === null || role === undefined) {
+    console.log('role', role);
+    if (!role) {
       return null;
     }
     return role;
   }
 
   getPlayerId(): string {
-    const {playerId} = this.get();
+    const { playerId } = this.get();
     return playerId;
   }
 

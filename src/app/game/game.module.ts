@@ -6,7 +6,10 @@ import { HudComponent } from './components/hud/hud.component';
 import { RouterModule, Routes } from '@angular/router';
 import { PlayersHudComponent } from './components/players-hud/players-hud.component';
 
-const ROUTES: Routes = [{path: '', component: GameComponent}];
+const ROUTES: Routes = [{ path: '', component: GameComponent }, {
+  path: ':name',
+  component: GameComponent
+}];
 
 @NgModule({
   declarations: [
