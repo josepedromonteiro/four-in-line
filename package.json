@@ -1,13 +1,18 @@
 {
   "name": "four-in-line",
   "version": "0.0.0",
+  "main": "main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "electron": "electron .",
+    "build::electron": "ng build && electron .",
+    "package::win": "ng build --prod && electron-packager . --overwrite --asar=true --platform=win32 --arch=x64 --icon=src/assets/native/icon.ico --prune=true --out=release-builds",
+    "package::mac": "ng build --prod && electron-packager . --overwrite --asar=true --platform=darwin --arch=x64 --icon=src/assets/native/icon.icns --prune=true --out=release-builds"
   },
   "private": true,
   "dependencies": {
@@ -37,13 +42,20 @@
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
+    "@angular-devkit/architect": ">= 0.900 < 0.1200",
     "@angular-devkit/build-angular": "~0.901.9",
     "@angular/cli": "~9.1.9",
     "@angular/compiler-cli": "~9.1.11",
-    "@types/node": "^12.11.1",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
+    "@types/node": "^12.11.1",
     "codelyzer": "^5.1.2",
+    "electron": "^11.1.1",
+    "electron-packager": "^15.2.0",
+    "firebase-tools": "^8.0.0",
+    "fuzzy": "^0.1.3",
+    "inquirer": "^6.2.2",
+    "inquirer-autocomplete-prompt": "^1.0.1",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~5.0.0",
@@ -51,15 +63,10 @@
     "karma-coverage-istanbul-reporter": "~2.1.0",
     "karma-jasmine": "~3.0.1",
     "karma-jasmine-html-reporter": "^1.4.2",
+    "open": "^7.0.3",
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
-    "typescript": "~3.8.3",
-    "@angular-devkit/architect": ">= 0.900 < 0.1200",
-    "firebase-tools": "^8.0.0",
-    "fuzzy": "^0.1.3",
-    "inquirer": "^6.2.2",
-    "inquirer-autocomplete-prompt": "^1.0.1",
-    "open": "^7.0.3"
+    "typescript": "~3.8.3"
   }
 }
