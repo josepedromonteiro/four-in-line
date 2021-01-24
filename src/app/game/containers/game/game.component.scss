@@ -9,4 +9,29 @@ app-game {
     flex-grow: 1;
   }
 
+
+
+  .game-zone {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+
+    .stage {
+      display: flex;
+      justify-content: center;
+      video {
+        transform: scaleX(-1);
+        border-radius: 30px;
+        border: 10px solid var(--primary-dark);
+        margin-left: 80px;
+        margin-right: 80px;
+      }
+
+      canvas{
+        display: none;
+      }
+    }
+  }
+
 }

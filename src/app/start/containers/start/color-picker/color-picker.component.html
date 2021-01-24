@@ -1,0 +1,4 @@
+<div class="color" [ngClass]="{'active':pColor == color }" *ngFor="let pColor of colors"
+     [style.backgroundColor]="pColor" (click)="onPickColor(pColor)">
+
+</div>

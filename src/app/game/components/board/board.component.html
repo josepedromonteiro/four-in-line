@@ -1,8 +1,20 @@
 <div class="board-parent-container">
   <div class="board-child-container">
-
     <table #tableEl>
+      <tr>
+        <td class="helper"
+            [ngClass]="{'active': activeHover?.column === c && !isDisabled, 'player-1': this.currentPlayer?.role === PlayersRoles.Player1}"
+            *ngFor="let _ of board[0]; let c = index">{{GESTURES[EMOJIS[c]]}}</td>
+      </tr>
+      <tr>
+<!--        <td class="helper"></td>-->
+        <td class="helper"
+            [ngClass]="{'active': activeHover?.column === c && !isDisabled, 'player-1': this.currentPlayer?.role === PlayersRoles.Player1}"
+            *ngFor="let col of board[0]; let c = index">{{c+1}}</td>
+      </tr>
       <tr *ngFor="let row of board; let r = index">
+<!--        <td class="helper"-->
+<!--            [ngClass]="{'active': activeHover?.row === r && !isDisabled, 'player-1':this.currentPlayer.role === PlayersRoles.Player1}">{{rows[r]}}</td>-->
         <td
           *ngFor="let col of row; let c = index"
           (mouseenter)="onCellHover(r, c, true)"

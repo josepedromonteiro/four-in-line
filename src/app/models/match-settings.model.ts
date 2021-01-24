@@ -24,4 +24,7 @@ export interface MatchSettings {
    */
   ghostHelper: boolean;
 
+  player1Color?: string;
+  player2Color?: string;
+
 }

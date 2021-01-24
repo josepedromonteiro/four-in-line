@@ -5,12 +5,16 @@ import { CreateMatchData } from '../../../models/create-match-data.model';
 import { DEFAULTS } from '../../../defaults';
 import { MatDialog } from '@angular/material/dialog';
 import { take } from 'rxjs/operators';
+import { ThemeService } from '../../../shared/services/theme.service';
 
 export enum ANIMATION_STATE {
   CLOSED,
   OPENED,
   DOCKED
 }
+
+export const DEFAULT_PLAYER_1_COLOR = '#FF69BA';
+export const DEFAULT_PLAYER_2_COLOR = '#06aab4';
 
 @Component({
   selector: 'app-start',
@@ -31,10 +35,18 @@ export class StartComponent {
   public readonly ANIMATION_STATE: typeof ANIMATION_STATE = ANIMATION_STATE;
   public gameId = '';
   public playerName = '';
+  public columns = 5;
+  public player1Colors: string[] = ['#FF69BA', '#F7B32B', '#80b918'];
+  public player1Color = DEFAULT_PLAYER_1_COLOR;
+
+
+  public player2Colors: string[] = ['#06aab4', '#fb5d5d', '#f4a261'];
+  public player2Color = DEFAULT_PLAYER_2_COLOR;
 
   constructor(private dialog: MatDialog,
               private router: Router,
-              private gameService: GameService) {
+              private gameService: GameService,
+              private themeService: ThemeService) {
 
   }
 
@@ -70,10 +82,10 @@ export class StartComponent {
   newGame() {
     const data: CreateMatchData = {
       player1Name: this.playerName || DEFAULTS.player1Name,
-      boardNumCols: DEFAULTS.boardNumCols,
+      boardNumCols: this.columns  || DEFAULTS.boardNumCols,
       boardNumRows: DEFAULTS.boardNumRows,
       four: DEFAULTS.four,
-      ghostHelper: DEFAULTS.enableGhostHelper
+      ghostHelper: DEFAULTS.enableGhostHelper,
     };
 
     this.gameService
@@ -88,11 +100,18 @@ export class StartComponent {
     }
     this.gameService.matchExists(this.gameId).pipe(
       take(1),
-    ).subscribe((result: string) => {
+    ).subscribe(async (result: string) => {
       if (result) {
-        this.router.navigate([`/${this.gameId}`]);
+        this.router.navigate([`/${this.gameId}/${this.playerName}`]);
       }
     });
   }
 
+  onPlayer1ColorChange(color: string) {
+    this.themeService.setPlayer1Color(color);
+  }
+
+  onPlayer2ColorChange(color: string) {
+    this.themeService.setPlayer2Color(color);
+  }
 }

@@ -6,6 +6,22 @@
   align-items: center;
   height: 100%;
 
+  .helper {
+    font-weight: bold;
+    font-size: 26px;
+    color: white;
+    opacity: .7;
+    text-align: center;
+
+    &.active {
+      color: var(--player-2-color);
+
+      &.player-1 {
+        color: var(--player-1-color)!important;
+      }
+    }
+  }
+
   .board-child-container {
     position: relative;
     display: flex;
@@ -71,19 +87,21 @@
           border-radius: 50%;
 
           &.player1 {
-            background: $player1;
+            background: var(--player-1-color);
           }
 
           &.player1-ghost {
-            background: transparentize($player1, 0.5);
+            background: var(--player-1-color);
+            opacity: .5;
           }
 
           &.player2 {
-            background: $player2;
+            background: var(--player-2-color);
           }
 
           &.player2-ghost {
-            background: transparentize($player2, 0.5);
+            background: var(--player-2-color);
+            opacity: .5;
           }
 
         }

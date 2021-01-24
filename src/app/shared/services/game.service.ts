@@ -13,18 +13,23 @@ import { GameUtils } from '../../game/game-utils';
 import firebase from 'firebase/app';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { Observable } from 'rxjs';
-import { first, map, tap } from 'rxjs/operators';
+import { first, map, take, tap } from 'rxjs/operators';
+import { PeerService } from './peer/peer.service';
+import Peer from 'peerjs';
+import { ThemeService } from './theme.service';
 
 @Injectable()
 export class GameService {
 
   constructor(private db: AngularFireDatabase,
               private storage: LocalStorageService,
-              private store: Store) {
+              private store: Store,
+              private peerService: PeerService,
+              private themeService: ThemeService) {
 
   }
 
-  private getInitialMatchData(data: CreateMatchData): Partial<Match> {
+  private getInitialMatchData(data: CreateMatchData): Observable<Partial<Match>> {
 
     // set host player data
     const player: Player = {
@@ -39,34 +44,48 @@ export class GameService {
       numRows: data.boardNumRows,
       numCols: data.boardNumCols,
       four: data.four,
-      ghostHelper: data.ghostHelper
+      ghostHelper: data.ghostHelper,
+      player1Color: this.themeService.player1Color,
+      player2Color: this.themeService.player2Color,
     };
 
     // get a brand new board
     const utils = new GameUtils(settings);
     const board = utils.getEmptyBoard();
 
-    return {
-      startAt: firebase.database.ServerValue.TIMESTAMP,
-      activePlayer: player,
-      settings,
-      board,
-      players: {
-        [player.id]: player
-      }
-    };
+    return this.peerService.createPeer().pipe(
+      map((peer: Peer) => {
+        return {
+          startAt: firebase.database.ServerValue.TIMESTAMP,
+          activePlayer: player,
+          settings,
+          board,
+          players: {
+            [player.id]: player
+          },
+          peerConnection: {
+            id: peer.id
+          }
+        };
+      })
+    );
+
 
   }
 
   createMatch(data: CreateMatchData): Promise<string> {
     const matchId = this.db.createPushId();
-    const match = this.getInitialMatchData(data);
-
     this.storage.setMyRoleForMatch(matchId, PlayerRole.Player1);
-
-    return this.db.object(matchId)
-      .set(match)
-      .then(() => matchId);
+    return new Promise<string>((resolve, _) => {
+      this.getInitialMatchData(data).pipe(
+        take(1)
+      ).subscribe((matchData: Partial<Match>) => {
+        const addToDB: Promise<string> = this.db.object(matchId)
+          .set(matchData)
+          .then(() => matchId);
+        return resolve(addToDB);
+      });
+    });
 
   }
 
@@ -161,5 +180,6 @@ export class GameService {
         tap(next => this.store.set(StateProps.settings, next))
       );
   }
+
 
 }

@@ -12,14 +12,25 @@
       [activePlayer]="activePlayer$ | async">
     </app-players-hud>
 
-    <app-board
-      (mark)="onMark($event)"
-      [isDisabled]="!isMyTurn || playersCount < 2 || (winnerPlayer$ | async)?.id"
-      [currentPlayer]="currentPlayer"
-      [winnerPlayer]="winnerPlayer$ | async"
-      [settings]="settings$ | async"
-      [board]="board$ | async">
-    </app-board>
+    <div class="game-zone">
+      <div class="player-1-stage stage">
+        <video id="pose-video-1" class="layer" autoplay></video>
+        <canvas id="pose-canvas-1" class="layer"></canvas>
+      </div>
+      <app-board
+        (mark)="onMark($event)"
+        [isDisabled]="!isMyTurn || playersCount < 2 || (winnerPlayer$ | async)?.id"
+        [gesture]="gesture"
+        [currentPlayer]="currentPlayer"
+        [winnerPlayer]="winnerPlayer$ | async"
+        [settings]="settings$ | async"
+        [board]="board$ | async">
+      </app-board>
+
+<!--      <div class="player-2-stage stage">-->
+<!--        <video #videoElement2 id="pose-video-2" class="layer" playsinline></video>-->
+<!--      </div>-->
+    </div>
 
     <app-hud
       [playersCount]="playersCount"

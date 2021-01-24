@@ -6,9 +6,32 @@
          (click)="expandLeft()">
       Create new match
     </div>
+    <div class="toolbar-1">
+      <button class="small offset"
+              (click)="expandLeft()">BACK</button>
+    </div>
     <div class="player-name">
       <h1>Your player name</h1>
-      <input class="game-input" [(ngModel)]="playerName"/>
+      <input class="game-input" [(ngModel)]="playerName" />
+
+      <div class="columns-section">
+        <h2>Pick the number of columns</h2>
+        <div class="columns">
+          <button class="offset" (click)="columns = 5" [ngClass]="{'active':columns == 5}">
+            5
+          </button>
+          <button class="offset" (click)="columns = 6" [ngClass]="{'active':columns == 6}">
+            6
+          </button>
+          <button class="offset" (click)="columns = 7" [ngClass]="{'active':columns == 7}">
+            7
+          </button>
+        </div>
+      </div>
+
+
+      <h2>Pick a color</h2>
+      <app-color-picker [colors]="player1Colors" [(color)]="player1Color" (colorChange)="onPlayer1ColorChange($event)"></app-color-picker>
 
       <div class="toolbar" (click)="newGame()">
         <button class="offset">Start new game</button>
@@ -20,13 +43,25 @@
   <div class="participate-game"
        [ngClass]="{'expanded' : viewData.rightExpanded == ANIMATION_STATE.OPENED,
                    'closed':  viewData.rightExpanded == ANIMATION_STATE.CLOSED}">
-    <div class="clickable-area"
-         (click)="expandRight()">
+    <div class="clickable-area" (click)="expandRight()">
       Participate in Game
+    </div>
+    <div class="toolbar-1">
+      <button class="small offset"
+              (click)="expandRight()">BACK</button>
     </div>
     <div class="player-name">
       <h1>Game ID</h1>
-      <input class="game-input" [(ngModel)]="gameId"/>
+      <input class="game-input" [(ngModel)]="gameId" />
+
+
+      <h2>Player name</h2>
+      <input class="game-input" [(ngModel)]="playerName" />
+
+
+      <h2>Pick a color</h2>
+      <app-color-picker [colors]="player2Colors" [(color)]="player2Color" (colorChange)="onPlayer2ColorChange($event)"></app-color-picker>
+
       <div class="toolbar">
         <button class="offset" (click)="enrollGame()">Enroll Game</button>
       </div>

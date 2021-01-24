@@ -48,4 +48,8 @@ export interface Match {
    */
   settings: MatchSettings;
 
+  peerConnection: {
+    id: string;
+  }
+
 }

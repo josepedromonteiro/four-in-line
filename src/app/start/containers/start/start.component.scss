@@ -15,6 +15,16 @@ app-start {
     }
 
 
+    .columns-section {
+      margin-top: 30px;
+      margin-bottom: 30px;
+
+      .columns {
+        display: flex;
+        justify-content: space-around;
+      }
+    }
+
     button {
       --color: #3f51b5;
       --hover: #3f51b5;
@@ -34,8 +44,15 @@ app-start {
       font-weight: bold;
       text-transform: uppercase;
 
+      &.small {
+        font-size: 14px;
+        padding: .5em 1em;
+        margin-top: 20px;
+      }
+
       &:hover,
-      &:focus {
+      &:focus,
+      &.active {
         border-color: var(--hover);
         color: #fff;
       }
@@ -48,6 +65,14 @@ app-start {
         &:focus {
           box-shadow: 0 0 0 0 var(--hover),
           inset 6em 3.5em 0 0 var(--hover);
+        }
+
+        &.active {
+          border-color: var(--primary-dark);
+          box-shadow: 0.3em 0.3em 0 0 var(--color),
+          inset 0.3em 0.3em 0 0 var(--color);
+          background-color: var(--primary);
+
         }
       }
     }
@@ -68,8 +93,9 @@ app-start {
       }
 
       .clickable-area {
-        max-height: 300px;
-        min-height: 300px;
+        max-height: 100px;
+        min-height: 100px;
+        padding-top: 80px;
       }
     }
 
@@ -92,6 +118,27 @@ app-start {
     }
 
 
+
+    .toolbar {
+      width: 100%;
+      text-align: center;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .toolbar-1 {
+      width: 100%;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding-bottom: 30px;
+    }
+
     .player-name {
       //max-height: 0;
       overflow: hidden;
@@ -99,12 +146,6 @@ app-start {
       margin: auto;
       transform: scale(0) translateY(300px);
       color: #3f51b5;
-
-      .toolbar{
-        width: 100%;
-        text-align: center;
-        padding: 40px;
-      }
 
       input {
         width: 90%;
