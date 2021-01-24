@@ -5,13 +5,14 @@ const path = require('path');
 function createWindow() {
   const win = new BrowserWindow({
     autoHideMenuBar: true,
+    titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: true
     }
   })
-  
+
   win.maximize()
-  
+
   win.loadURL(
     url.format({
       pathname: path.join(__dirname, `dist/four-in-line/index.html`),

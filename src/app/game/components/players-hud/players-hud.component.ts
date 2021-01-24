@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
 import { Player } from '../../../models/player.model';
 import { PlayerRole } from '../../../shared/enums/player-role.enum';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GameService } from '../../../shared/services/game.service';
 
 @Component({
   selector: 'app-players-hud',
@@ -17,7 +19,16 @@ export class PlayersHudComponent {
   @Input()
   activePlayer: Player;
 
+  @Input()
+  matchId: string;
+
+  @Input()
+  isMyTurn: boolean = false;
+
   playerRole = PlayerRole;
+
+  constructor(private _snackBar: MatSnackBar) {
+  }
 
   get playerIds() {
     if (!this.players) {
@@ -26,6 +37,13 @@ export class PlayersHudComponent {
 
     return Object.keys(this.players);
 
+  }
+
+
+  openSnackBar() {
+    this._snackBar.open(`Game id copied!`,null, {
+      duration: 2000,
+    });
   }
 
 }

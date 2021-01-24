@@ -5,11 +5,12 @@ import { BoardComponent } from './components/board/board.component';
 import { HudComponent } from './components/hud/hud.component';
 import { RouterModule, Routes } from '@angular/router';
 import { PlayersHudComponent } from './components/players-hud/players-hud.component';
+import {ClipboardModule} from 'ngx-clipboard';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-const ROUTES: Routes = [{ path: '', component: GameComponent }, {
-  path: ':name',
-  component: GameComponent
-}];
+const ROUTES: Routes = [
+  { path: ':id/:name', component: GameComponent },
+  { path: ':id', component: GameComponent, },];
 
 @NgModule({
   declarations: [
@@ -20,7 +21,9 @@ const ROUTES: Routes = [{ path: '', component: GameComponent }, {
   ],
   imports: [
     SharedModule,
-    RouterModule.forChild(ROUTES)
+    RouterModule.forChild(ROUTES),
+    ClipboardModule,
+    MatSnackBarModule
   ]
 })
 export class GameModule {

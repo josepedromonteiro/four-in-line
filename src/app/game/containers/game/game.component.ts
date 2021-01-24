@@ -11,9 +11,9 @@ import { Players } from '../../../models/players.model';
 import { MatchSettings } from '../../../models/match-settings.model';
 import { PlayerValue } from '../../../shared/enums/player-value.enum';
 import { DEFAULTS } from '../../../defaults';
-import { combineLatest, Observable, Subject, Subscription, throwError } from 'rxjs';
+import { combineLatest, forkJoin, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { debounceTime, distinctUntilChanged, first, switchMap, take, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, first, map, switchMap, take, tap } from 'rxjs/operators';
 
 import * as FP from 'fingerpose';
 import * as Handpose from '@tensorflow-models/handpose';
@@ -76,7 +76,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(private store: Store,
               private storage: LocalStorageService,
-              private gameService: GameService,
+              public gameService: GameService,
               private dialog: MatDialog,
               private router: Router,
               private route: ActivatedRoute,
@@ -111,8 +111,17 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
           this.gameService.setMatchId(matchId);
           this.peerService.matchId = matchId;
-          return this.gameService.settings$().pipe(first());
 
+          let setColor;
+          if (this.playerName) {
+            setColor = this.gameService.setPlayer2Color();
+          }
+
+          return forkJoin({ setColor: of(setColor), settings: this.gameService.settings$().pipe(first()) }).pipe(
+            map((result: { setColor: string, settings: MatchSettings }) => {
+              return result.settings;
+            })
+          );
         }),
         switchMap((settings: MatchSettings) => {
 
@@ -133,6 +142,16 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
             this.gameService.winnerPlayer$(),
             this.gameService.players$().pipe(tap(() => this.playersUpdated())),
             this.gameService.board$().pipe(tap(() => this.boardUpdated())),
+            this.gameService.settings$().pipe(tap((settings_: MatchSettings) => {
+              console.log(settings_);
+              if (settings_.player1Color) {
+                this.themeService.setPlayer1Color(settings_.player1Color);
+              }
+
+              if (settings_.player2Color) {
+                this.themeService.setPlayer2Color(settings_.player2Color);
+              }
+            }))
           ]);
 
         })

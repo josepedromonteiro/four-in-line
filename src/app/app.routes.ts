@@ -10,7 +10,7 @@ export const ROUTES: Routes = [
     loadChildren: () => import('./credits/credits.module').then(m => m.CreditsModule)
   },
   {
-    path: ':id',
+    path: 'game',
     loadChildren: () => import('./game/game.module').then(m => m.GameModule)
   }
 ];

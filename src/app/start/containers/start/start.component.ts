@@ -90,7 +90,7 @@ export class StartComponent {
 
     this.gameService
       .createMatch(data)
-      .then(matchId => this.router.navigate([`/${matchId}`]));
+      .then(matchId => this.router.navigate([`/game/${matchId}`]));
 
   }
 
@@ -102,7 +102,7 @@ export class StartComponent {
       take(1),
     ).subscribe(async (result: string) => {
       if (result) {
-        this.router.navigate([`/${this.gameId}/${this.playerName}`]);
+        this.router.navigate([`/game/${this.gameId}/${this.playerName}`]);
       }
     });
   }

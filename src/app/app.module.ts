@@ -31,7 +31,7 @@ import { AngularFireDatabaseModule } from '@angular/fire/database';
     AngularFireDatabaseModule,
 
     // routing
-    RouterModule.forRoot(ROUTES),
+    RouterModule.forRoot(ROUTES, {useHash: true}),
 
     // shared
     SharedModule.forRoot()

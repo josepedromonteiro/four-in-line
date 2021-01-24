@@ -8,6 +8,8 @@
   <ng-container>
 
     <app-players-hud
+      [isMyTurn]="isMyTurn"
+      [matchId]="matchId$ | async"
       [players]="players$ | async"
       [activePlayer]="activePlayer$ | async">
     </app-players-hud>

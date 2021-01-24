@@ -172,12 +172,21 @@ export class GameService {
 
   }
 
+  setPlayer2Color(): Promise<string> {
+    return this.db
+      .object(`${this.matchId}/${StateProps.settings}/player2Color`)
+      .set(this.themeService.player2Color)
+      .then(() => this.themeService.player2Color);
+  }
+
   settings$(): Observable<MatchSettings> {
     return this.db
       .object<MatchSettings>(`${this.matchId}/${StateProps.settings}`)
       .valueChanges()
       .pipe(
-        tap(next => this.store.set(StateProps.settings, next))
+        tap((settings: MatchSettings) => {
+          this.store.set(StateProps.settings, settings);
+        })
       );
   }
 
