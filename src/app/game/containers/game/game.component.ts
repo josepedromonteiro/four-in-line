@@ -143,11 +143,9 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
             this.gameService.players$().pipe(tap(() => this.playersUpdated())),
             this.gameService.board$().pipe(tap(() => this.boardUpdated())),
             this.gameService.settings$().pipe(tap((settings_: MatchSettings) => {
-              console.log(settings_);
               if (settings_.player1Color) {
                 this.themeService.setPlayer1Color(settings_.player1Color);
               }
-
               if (settings_.player2Color) {
                 this.themeService.setPlayer2Color(settings_.player2Color);
               }
