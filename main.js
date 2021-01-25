@@ -8,6 +8,7 @@ function createWindow() {
     autoHideMenuBar: true,
     titleBarStyle: isWin ? 'hidden' :'hiddenInset',
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       // nodeIntegration: true
     }
   })
@@ -21,14 +22,6 @@ function createWindow() {
       slashes: true
     })
   );
-
-  if(isWin){
-    const customTitlebar = require('custom-electron-titlebar');
-
-    new customTitlebar.Titlebar({
-      backgroundColor: customTitlebar.Color.fromHex('#3f51b5')
-    });
-  }
 }
 
 app.whenReady().then(createWindow)

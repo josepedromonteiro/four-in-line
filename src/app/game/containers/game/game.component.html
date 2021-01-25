@@ -15,9 +15,16 @@
     </app-players-hud>
 
     <div class="game-zone">
-      <div class="player-1-stage stage">
-        <video id="pose-video-1" class="layer" autoplay></video>
-        <canvas id="pose-canvas-1" class="layer"></canvas>
+
+      <div class="left-panel">
+        <div class="player-1-stage stage">
+          <video id="pose-video-1" class="layer" autoplay></video>
+          <canvas id="pose-canvas-1" class="layer"></canvas>
+        </div>
+
+        <div class="player-2-stage stage">
+          <video #videoElement2 id="pose-video-2" class="layer" playsinline></video>
+        </div>
       </div>
       <app-board
         (mark)="onMark($event)"
@@ -29,9 +36,6 @@
         [board]="board$ | async">
       </app-board>
 
-<!--      <div class="player-2-stage stage">-->
-<!--        <video #videoElement2 id="pose-video-2" class="layer" playsinline></video>-->
-<!--      </div>-->
     </div>
 
     <app-hud

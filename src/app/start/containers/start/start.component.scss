@@ -1,9 +1,13 @@
 app-start {
+  overflow: hidden;
 
   .start-page {
     display: flex;
     overflow: hidden;
-    max-width: 100vw;
+
+    width: 100vw;
+    position: relative;
+    height: calc(100vh - var(--toolbar-height));
 
 
     .participate-game, .new-game {
@@ -116,7 +120,6 @@ app-start {
         transform: translateX(-100%);
       }
     }
-
 
 
     .toolbar {
