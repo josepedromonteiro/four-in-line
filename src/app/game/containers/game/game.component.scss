@@ -7,6 +7,12 @@ app-game {
 
   app-board {
     flex-grow: 1;
+
+    background: rgba(0, 0, 0, 0.08);
+    height: 100%;
+    border-radius: 30px;
+    margin: 40px;
+    box-shadow: 0 10px 100px 0 #00000075;
   }
 
 
@@ -20,6 +26,14 @@ app-game {
     .stage {
       display: flex;
       justify-content: center;
+      align-items: center;
+
+      background: rgba(0, 0, 0, 0.08);
+      height: 100%;
+      border-radius: 30px;
+      margin: 40px;
+      box-shadow: 0 10px 100px 0 #00000075;
+
       video {
         transform: scaleX(-1);
         border-radius: 30px;

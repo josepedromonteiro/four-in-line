@@ -2,9 +2,8 @@
 <div class="code"   (click)="openSnackBar()" *ngIf="playerIds.length === 1">
   <span ngxClipboard [cbContent]="matchId">{{matchId}}</span>
 </div>
-
-<div class="turn" >
-  <span *ngIf="isMyTurn && playerIds.length === 2">It's your turn</span>
+<div class="turn" *ngIf="playerIds.length === 2">
+  <span *ngIf="isMyTurn">It's your turn</span>
 </div>
 <div class="players-hud">
   <div class="hud-element jus-center" *ngIf="playerIds.length === 1">

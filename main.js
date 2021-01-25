@@ -1,13 +1,22 @@
 const { app, BrowserWindow } = require('electron')
 const url = require('url');
 const path = require('path');
+var isWin = process.platform === "win32";
 
 function createWindow() {
   const win = new BrowserWindow({
     autoHideMenuBar: true,
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: isWin ? 'hidden' :'hiddenInset',
     webPreferences: {
       // nodeIntegration: true
+    };
+
+    if(isWin){
+      const customTitlebar = require('custom-electron-titlebar');
+
+      new customTitlebar.Titlebar({
+        backgroundColor: customTitlebar.Color.fromHex('#3f51b5')
+      });
     }
   })
 
