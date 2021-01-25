@@ -9,14 +9,6 @@ function createWindow() {
     titleBarStyle: isWin ? 'hidden' :'hiddenInset',
     webPreferences: {
       // nodeIntegration: true
-    };
-
-    if(isWin){
-      const customTitlebar = require('custom-electron-titlebar');
-
-      new customTitlebar.Titlebar({
-        backgroundColor: customTitlebar.Color.fromHex('#3f51b5')
-      });
     }
   })
 
@@ -29,6 +21,14 @@ function createWindow() {
       slashes: true
     })
   );
+
+  if(isWin){
+    const customTitlebar = require('custom-electron-titlebar');
+
+    new customTitlebar.Titlebar({
+      backgroundColor: customTitlebar.Color.fromHex('#3f51b5')
+    });
+  }
 }
 
 app.whenReady().then(createWindow)
