@@ -21,6 +21,7 @@ import { incredibleGesture, palmGesture, pointerGesture, rockGesture, thumbsDown
 import Peer from 'peerjs';
 import { PeerService } from '../../../shared/services/peer/peer.service';
 import { ThemeService } from '../../../shared/services/theme.service';
+import { VoiceRecognitionService } from 'src/app/shared/services/voice-recognition.service';
 
 export const gestureStrings: { [key: string]: string } = {
   thumbs_up: '👍',
@@ -70,6 +71,8 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   loading: boolean;
   public gesture: string;
   private gestureChanged: Subject<string>;
+  
+  public voice: string
 
   private myStream: MediaStream;
   private playerName: string;
@@ -81,7 +84,8 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
               private router: Router,
               private route: ActivatedRoute,
               private peerService: PeerService,
-              private themeService: ThemeService) {
+              private themeService: ThemeService,
+              private voiceRecognitionService: VoiceRecognitionService) {
     this.gestureChanged = new Subject<string>();
     this.gestureChanged.pipe(
       distinctUntilChanged(),
@@ -198,7 +202,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
           this.router.navigate(['/']);
         }
       );
-
   }
 
   ngOnDestroy() {
@@ -317,6 +320,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private changeTurn() {
+    this.disableSpeechRecognition()
 
     // deny the other player to change turn for me
     // also, exit if i didn't move yet
@@ -461,4 +465,15 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  get isSpeechRecognitionEnabled(): boolean {
+    return this.voiceRecognitionService.isSpeechRecognitionEnabled
+  }
+
+  enableSpeechRecognition() {
+    this.voiceRecognitionService.start()
+  }
+
+  disableSpeechRecognition() {
+    this.voiceRecognitionService.stop()
+  }
 }

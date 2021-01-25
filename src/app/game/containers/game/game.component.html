@@ -25,6 +25,15 @@
         <div class="player-2-stage stage">
           <video #videoElement2 id="pose-video-2" class="layer" playsinline></video>
         </div>
+
+        <div>
+          <button type="button" mat-raised-button *ngIf="!isSpeechRecognitionEnabled" (click)="enableSpeechRecognition()" [disabled]="!isMyTurn">
+            Enable Voice Control
+          </button>
+          <button type="button" mat-raised-button *ngIf="isSpeechRecognitionEnabled" (click)="disableSpeechRecognition()" [disabled]="!isMyTurn">
+            Disable Voice Control
+          </button>
+        </div>
       </div>
       <app-board
         (mark)="onMark($event)"
