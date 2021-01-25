@@ -12,10 +12,9 @@ import { MatchSettings } from '../../models/match-settings.model';
 import { GameUtils } from '../../game/game-utils';
 import firebase from 'firebase/app';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { first, map, take, tap } from 'rxjs/operators';
 import { PeerService } from './peer/peer.service';
-import Peer from 'peerjs';
 import { ThemeService } from './theme.service';
 
 @Injectable()
@@ -53,22 +52,22 @@ export class GameService {
     const utils = new GameUtils(settings);
     const board = utils.getEmptyBoard();
 
-    return this.peerService.createPeer().pipe(
-      map((peer: Peer) => {
-        return {
-          startAt: firebase.database.ServerValue.TIMESTAMP,
-          activePlayer: player,
-          settings,
-          board,
-          players: {
-            [player.id]: player
-          },
-          peerConnection: {
-            id: peer.id
-          }
-        };
-      })
-    );
+    // return this.peerService.createPeer().pipe(
+    //   map((peer: Peer) => {
+    return of({
+      startAt: firebase.database.ServerValue.TIMESTAMP,
+      activePlayer: player,
+      settings,
+      board,
+      players: {
+        [player.id]: player
+      },
+      peerConnection: {
+        id: null
+      }
+    });
+    // });
+    // );
 
 
   }
@@ -188,6 +187,18 @@ export class GameService {
           this.store.set(StateProps.settings, settings);
         })
       );
+  }
+
+  public setPeerId(id: string): Promise<void> {
+    return this.db
+      .object(`${this.matchId}/peerId`)
+      .set(id);
+  }
+
+  public getPeerId(): Observable<string> {
+    return this.db
+      .object<string>(`${this.matchId}/peerId`)
+      .valueChanges();
   }
 
 

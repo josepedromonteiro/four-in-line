@@ -18,9 +18,9 @@ import { debounceTime, distinctUntilChanged, first, map, switchMap, take, tap } 
 import * as FP from 'fingerpose';
 import * as Handpose from '@tensorflow-models/handpose';
 import { incredibleGesture, palmGesture, pointerGesture, rockGesture, thumbsDownGesture } from './gestures/gestures';
-import Peer from 'peerjs';
 import { PeerService } from '../../../shared/services/peer/peer.service';
 import { ThemeService } from '../../../shared/services/theme.service';
+import Peer from 'peerjs';
 
 export const gestureStrings: { [key: string]: string } = {
   thumbs_up: '👍',
@@ -81,7 +81,8 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
               private router: Router,
               private route: ActivatedRoute,
               private peerService: PeerService,
-              private themeService: ThemeService) {
+              private themeService: ThemeService,
+              private elRef: ElementRef) {
     this.gestureChanged = new Subject<string>();
     this.gestureChanged.pipe(
       distinctUntilChanged(),
@@ -160,36 +161,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
           setTimeout(() => {
             this.initViewComponents();
           }, 500);
-
-
-          // identify my role for this match (check localStorage)
-          const currentRole = this.storage.getMyRoleForMatch(this.gameService.matchId);
-
-          // if I have no role and there aren't 2 players yet, I become the player 2
-          if (currentRole === null && this.playersCount < 2) {
-            if (this.myStream) {
-              this.anwserVideo();
-              return;
-            }
-            // I AM Player 2
-            this.onCameraReady.pipe(
-              take(1)
-            ).subscribe(() => {
-              this.anwserVideo();
-            });
-          } else {
-            // I AM Player 1
-            if (this.myStream) {
-              this.connectVideo(this.myStream);
-              return;
-            }
-
-            this.onCameraReady.pipe(
-              take(1)
-            ).subscribe((stream: MediaStream) => {
-              this.connectVideo(stream);
-            });
-          }
         },
         () => {
 
@@ -344,6 +315,49 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
           this.initFingerPose();
           this.myStream = stream;
           this.onCameraReady.next(stream);
+
+          // identify my role for this match (check localStorage)
+          // const currentRole = this.storage.getMyRoleForMatch(this.gameService.matchId);
+          //
+          // if (currentRole === 1) {
+          //   // I AM Player 1
+          //   console.log('IM APLAUER 1');
+          //   if (this.myStream) {
+          //     // this.connectVideo(this.myStream)
+          //     const peer = this.init();
+          //     this.gameService.setPeerId(peer.id);
+          //     console.log('spid', peer.id);
+          //     return;
+          //   }
+          //
+          //   this.onCameraReady.pipe(
+          //     take(1)
+          //   ).subscribe(() => {
+          //     console.log('camera ready')
+          //     const peer = this.init();
+          //     this.gameService.setPeerId(peer.id);
+          //     console.log('spid', peer.id);
+          //     // this.connectVideo(stream);
+          //   });
+          // } else {
+          //
+          //   this.gameService.getPeerId().subscribe((peerId) => {
+          //     this.partnerId = peerId;
+          //     console.log('pid', this.partnerId);
+          //     if (this.myStream) {
+          //       this.init();
+          //       this.call();
+          //       return;
+          //     }
+          //     // I AM Player 2
+          //     this.onCameraReady.pipe(
+          //       take(1)
+          //     ).subscribe(() => {
+          //       this.init();
+          //       this.call();
+          //     });
+          //   });
+          // }
         })
         .catch((error) => {
           console.error('Something went wrong!', error);
@@ -421,44 +435,63 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     console.log('Starting predictions');
   }
 
-  private connectVideo(stream: MediaStream) {
-    console.log('CREATED VIDEO');
+  // private connectVideo(stream: MediaStream) {
+  //   console.log('CREATED VIDEO');
+  //
+  //   this.peerService.peer.pipe(
+  //     take(1)
+  //   ).subscribe((peer: Peer) => {
+  //     const call = peer.call(peer.id, stream);
+  //     call.on('stream', (remoteStream: MediaStream) => {
+  //       const video = (this.theirVideo.nativeElement as HTMLVideoElement);
+  //       video.src = URL.createObjectURL(remoteStream);
+  //       video.play();
+  //     });
+  //   });
+  // }
 
-    this.peerService.peer.pipe(
-      take(1)
-    ).subscribe((peer: Peer) => {
-      const call = peer.call(peer.id, stream);
-      call.on('stream', (remoteStream: MediaStream) => {
-        const video = (this.theirVideo.nativeElement as HTMLVideoElement);
-        video.src = URL.createObjectURL(remoteStream);
-        video.play();
-      });
-    });
+  // private anwserVideo() {
+  //   console.log('ANWSER VIDEO');
+  //   if (navigator.mediaDevices.getUserMedia) {
+  //     navigator.mediaDevices.getUserMedia(this.cameraConstraints)
+  //       .then((stream: MediaStream) => {
+  //         this.peerService.peer.pipe(
+  //           take(1)
+  //         ).subscribe((peer: Peer) => {
+  //           peer.on('call', (call_: Peer.MediaConnection) => {
+  //             call_.answer(stream);
+  //             call_.on('stream', (remoteStream: MediaStream) => {
+  //               const video = (this.theirVideo.nativeElement as HTMLVideoElement);
+  //               video.srcObject = remoteStream;
+  //               video.play();
+  //             });
+  //           });
+  //         });
+  //
+  //       })
+  //       .catch((error) => {
+  //         console.error('Something went wrong!', error);
+  //       });
+  //   }
+  // }
+
+
+  userId: string;
+  partnerId: string;
+  myEl: HTMLMediaElement;
+  partnerEl: HTMLMediaElement;
+
+  init(): Peer {
+    console.log('INIT');
+    this.myEl = this.elRef.nativeElement.querySelector('#pose-video-1');
+    this.partnerEl = this.elRef.nativeElement.querySelector('#pose-video-2');
+    return this.peerService.init(this.userId, this.myEl, this.partnerEl);
   }
 
-  private anwserVideo() {
-    console.log('ANWSER VIDEO');
-    if (navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia(this.cameraConstraints)
-        .then((stream: MediaStream) => {
-          this.peerService.peer.pipe(
-            take(1)
-          ).subscribe((peer: Peer) => {
-            peer.on('call', (call_: Peer.MediaConnection) => {
-              call_.answer(stream);
-              call_.on('stream', (remoteStream: MediaStream) => {
-                const video = (this.theirVideo.nativeElement as HTMLVideoElement);
-                video.srcObject = remoteStream;
-                video.play();
-              });
-            });
-          });
-
-        })
-        .catch((error) => {
-          console.error('Something went wrong!', error);
-        });
-    }
+  call() {
+    console.log('CALL');
+    this.peerService.call(this.partnerId);
+    // this.swapVideo('my-video');
   }
 
 }
