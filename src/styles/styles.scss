@@ -6,7 +6,7 @@ body {
 }
 
 body {
-  background: $body-bg;
+  background: var(--primary);
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
