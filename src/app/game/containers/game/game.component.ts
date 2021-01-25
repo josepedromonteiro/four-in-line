@@ -171,28 +171,28 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
           // if I have no role and there aren't 2 players yet, I become the player 2
           if (currentRole === null && this.playersCount < 2) {
-            // if (this.myStream) {
-            //   this.anwserVideo();
-            //   return;
-            // }
-            // // I AM Player 2
-            // this.onCameraReady.pipe(
-            //   take(1)
-            // ).subscribe(() => {
-            //   this.anwserVideo();
-            // });
+            if (this.myStream) {
+              this.anwserVideo();
+              return;
+            }
+            // I AM Player 2
+            this.onCameraReady.pipe(
+              take(1)
+            ).subscribe(() => {
+              this.anwserVideo();
+            });
           } else {
             // I AM Player 1
-            // if (this.myStream) {
-            //   this.connectVideo(this.myStream);
-            //   return;
-            // }
-            //
-            // this.onCameraReady.pipe(
-            //   take(1)
-            // ).subscribe((stream: MediaStream) => {
-            //   this.connectVideo(stream);
-            // });
+            if (this.myStream) {
+              this.connectVideo(this.myStream);
+              return;
+            }
+
+            this.onCameraReady.pipe(
+              take(1)
+            ).subscribe((stream: MediaStream) => {
+              this.connectVideo(stream);
+            });
           }
         },
         () => {
