@@ -13,7 +13,7 @@ import { PlayerValue } from '../../../shared/enums/player-value.enum';
 import { DEFAULTS } from '../../../defaults';
 import { combineLatest, forkJoin, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { debounceTime, distinctUntilChanged, first, map, switchMap, take, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, first, map, switchMap, tap } from 'rxjs/operators';
 
 import * as FP from 'fingerpose';
 import * as Handpose from '@tensorflow-models/handpose';
@@ -21,7 +21,7 @@ import { incredibleGesture, palmGesture, pointerGesture, rockGesture, thumbsDown
 import Peer from 'peerjs';
 import { PeerService } from '../../../shared/services/peer/peer.service';
 import { ThemeService } from '../../../shared/services/theme.service';
-import { VoiceRecognitionService } from 'src/app/shared/services/voice-recognition.service';
+import { VoiceRecognitionService } from '../../../shared/services/voice-recognition.service';
 
 export const gestureStrings: { [key: string]: string } = {
   thumbs_up: '👍',
@@ -72,7 +72,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   public gesture: string;
   private gestureChanged: Subject<string>;
 
-  public voice: string
+  public voice: string;
 
   private myStream: MediaStream;
   private playerName: string;
@@ -321,47 +321,36 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
           this.onCameraReady.next(stream);
 
           // identify my role for this match (check localStorage)
-          // const currentRole = this.storage.getMyRoleForMatch(this.gameService.matchId);
-          //
+
+          let peer: Peer;
+          const currentRole = this.storage.getMyRoleForMatch(this.gameService.matchId);
+
           // if (currentRole === 1) {
-          //   // I AM Player 1
-          //   console.log('IM APLAUER 1');
-          //   if (this.myStream) {
-          //     // this.connectVideo(this.myStream)
-          //     const peer = this.init();
-          //     this.gameService.setPeerId(peer.id);
-          //     console.log('spid', peer.id);
-          //     return;
+          //   peer = new Peer({ initiator: true, stream });
+          // } else {
+          //   peer = new Peer();
+          // }
+          // peer.on('signal', data => {
+          //   console.log('signal');
+          // });
+          //
+          // peer.on('data', data => {
+          //   console.log('data');
+          // });
+          //
+          // peer.on('stream', (streamReceived: MediaStream) => {
+          //   // got remote video stream, now let's show it in a video tag
+          //   const videoElement: HTMLVideoElement = document.querySelector('#pose-video-2');
+          //
+          //   if ('srcObject' in videoElement) {
+          //     videoElement.srcObject = streamReceived;
+          //   } else {
+          //     (videoElement as HTMLImageElement).src = window.URL.createObjectURL(streamReceived); // for older browsers
           //   }
           //
-          //   this.onCameraReady.pipe(
-          //     take(1)
-          //   ).subscribe(() => {
-          //     console.log('camera ready')
-          //     const peer = this.init();
-          //     this.gameService.setPeerId(peer.id);
-          //     console.log('spid', peer.id);
-          //     // this.connectVideo(stream);
-          //   });
-          // } else {
-          //
-          //   this.gameService.getPeerId().subscribe((peerId) => {
-          //     this.partnerId = peerId;
-          //     console.log('pid', this.partnerId);
-          //     if (this.myStream) {
-          //       this.init();
-          //       this.call();
-          //       return;
-          //     }
-          //     // I AM Player 2
-          //     this.onCameraReady.pipe(
-          //       take(1)
-          //     ).subscribe(() => {
-          //       this.init();
-          //       this.call();
-          //     });
-          //   });
-          // }
+          //   videoElement.play();
+          // });
+
         })
         .catch((error) => {
           console.error('Something went wrong!', error);
@@ -499,14 +488,14 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get isSpeechRecognitionEnabled(): boolean {
-    return this.voiceRecognitionService.isSpeechRecognitionEnabled
+    return this.voiceRecognitionService.isSpeechRecognitionEnabled;
   }
 
   enableSpeechRecognition() {
-    this.voiceRecognitionService.start()
+    this.voiceRecognitionService.start();
   }
 
   disableSpeechRecognition() {
-    this.voiceRecognitionService.stop()
+    this.voiceRecognitionService.stop();
   }
 }
