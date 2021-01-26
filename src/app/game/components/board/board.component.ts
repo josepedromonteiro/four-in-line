@@ -5,6 +5,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   Output,
   Renderer2,
   SimpleChanges,
@@ -16,7 +17,10 @@ import { Player } from '../../../models/player.model';
 import { PlayerRole } from '../../../shared/enums/player-role.enum';
 import { Board } from '../../../models/board.model';
 import { gestureStrings } from '../../containers/game/game.component';
+import { VoiceRecognitionService } from 'src/app/shared/services/voice-recognition.service';
+import { VoiceAction, VoiceActionEnum } from 'src/app/shared/enums/voice-action.enum';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-board',
@@ -24,7 +28,7 @@ import { Subject } from 'rxjs';
   styleUrls: ['./board.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BoardComponent implements OnChanges {
+export class BoardComponent implements OnChanges, OnDestroy {
 
   playerValue = PlayerValue;
 
@@ -46,21 +50,42 @@ export class BoardComponent implements OnChanges {
   @Input()
   gesture: string;
 
-
   @ViewChild('tableEl')
   tableEl: ElementRef;
 
   @Output()
   mark = new EventEmitter<{ row: number; col: number; }>();
 
+  lastSelectedColumn: number = -1
+
   public readonly rows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   public activeHover: { column: number, row: number } = null;
   public PlayersRoles: typeof PlayerRole = PlayerRole;
   public readonly EMOJIS: string[] = Object.keys(gestureStrings);
   public readonly GESTURES: { [p: string]: string } = gestureStrings;
+  public destroyer: Subject<void> = new Subject<void>()
 
-  constructor(private renderer: Renderer2) {
+  constructor(private renderer: Renderer2, private voiceRecognitionService: VoiceRecognitionService) {
+    this.voiceRecognitionService.onVoiceChanged.pipe(
+      takeUntil(this.destroyer)
+    ).subscribe((value: VoiceAction) => {
+      if (value.action == VoiceActionEnum.COLUMN) {
+        this.onCellHover(0, value.value as number, true)
+      }
+    })
 
+    this.voiceRecognitionService.onVoiceChanged.pipe(
+      takeUntil(this.destroyer)
+    ).subscribe((value: VoiceAction) => {
+      if (value.action == VoiceActionEnum.START) {
+        this.onCellClick(0, this.lastSelectedColumn)
+      }
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.destroyer.next()
+    this.destroyer.complete()
   }
 
   public ngOnChanges(changes: SimpleChanges) {
@@ -104,10 +129,11 @@ export class BoardComponent implements OnChanges {
   }
 
   onCellHover(row: number, col: number, enable: boolean) {
+    this.lastSelectedColumn = col
+
     this.board[0].forEach((_, index) => {
       this.clearHoverState(0, index);
     });
-
 
     if (enable) {
       this.activeHover = { column: col, row: this.getTargetCell(col).row };

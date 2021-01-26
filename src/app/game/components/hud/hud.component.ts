@@ -4,6 +4,7 @@ import { PlayerRole } from '../../../shared/enums/player-role.enum';
 import * as Clipboard from 'clipboard';
 import { MatButton } from '@angular/material/button';
 import { VoiceRecognitionService } from 'src/app/shared/services/voice-recognition.service'
+import { Store } from 'src/app/store';
 
 @Component({
   selector: 'app-hud',
@@ -25,9 +26,7 @@ export class HudComponent implements AfterViewInit {
   @ViewChild('copyLinkBtn')
   copyLinkBtn: MatButton;
 
-  isSpeechRecognitionEnabled: boolean = false
-
-  constructor(public service: VoiceRecognitionService) {
+  constructor(private service: VoiceRecognitionService, private store: Store) {
     this.service.init()
   }
 
@@ -45,17 +44,5 @@ export class HudComponent implements AfterViewInit {
     } catch (e) {
       return false;
     }
-  }
-
-  enableSpeechRecognition() {
-    console.log("enabled")
-    this.service.start()
-    this.isSpeechRecognitionEnabled = true
-  }
-
-  disableSpeechRecognition() {
-    console.log("disabled")
-    this.service.stop()
-    this.isSpeechRecognitionEnabled = false
   }
 }
