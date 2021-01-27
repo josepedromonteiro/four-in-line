@@ -56,36 +56,39 @@ export class BoardComponent implements OnChanges, OnDestroy {
   @Output()
   mark = new EventEmitter<{ row: number; col: number; }>();
 
-  lastSelectedColumn: number = -1
+  lastSelectedColumn: number = -1;
 
   public readonly rows: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   public activeHover: { column: number, row: number } = null;
   public PlayersRoles: typeof PlayerRole = PlayerRole;
   public readonly EMOJIS: string[] = Object.keys(gestureStrings);
   public readonly GESTURES: { [p: string]: string } = gestureStrings;
-  public destroyer: Subject<void> = new Subject<void>()
+  public destroyer: Subject<void> = new Subject<void>();
 
   constructor(private renderer: Renderer2, private voiceRecognitionService: VoiceRecognitionService) {
     this.voiceRecognitionService.onVoiceChanged.pipe(
       takeUntil(this.destroyer)
     ).subscribe((value: VoiceAction) => {
       if (value.action == VoiceActionEnum.COLUMN) {
-        this.onCellHover(0, value.value as number, true)
+        this.onCellHover(0, value.value as number, true);
       }
-    })
+    });
 
     this.voiceRecognitionService.onVoiceChanged.pipe(
       takeUntil(this.destroyer)
     ).subscribe((value: VoiceAction) => {
-      if (value.action == VoiceActionEnum.START) {
-        this.onCellClick(0, this.lastSelectedColumn)
+      if (this.isDisabled) {
+        return;
       }
-    })
+      if (value.action == VoiceActionEnum.START) {
+        this.onCellClick(0, this.lastSelectedColumn);
+      }
+    });
   }
 
   ngOnDestroy(): void {
-    this.destroyer.next()
-    this.destroyer.complete()
+    this.destroyer.next();
+    this.destroyer.complete();
   }
 
   public ngOnChanges(changes: SimpleChanges) {
@@ -129,7 +132,7 @@ export class BoardComponent implements OnChanges, OnDestroy {
   }
 
   onCellHover(row: number, col: number, enable: boolean) {
-    this.lastSelectedColumn = col
+    this.lastSelectedColumn = col;
 
     this.board[0].forEach((_, index) => {
       this.clearHoverState(0, index);

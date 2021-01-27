@@ -115,6 +115,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     // this.initCamera();
+    this.enableSpeechRecognition();
   }
 
   ngOnInit() {
@@ -331,7 +332,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private changeTurn() {
-    this.disableSpeechRecognition();
+    // this.disableSpeechRecognition();
 
     // deny the other player to change turn for me
     // also, exit if i didn't move yet
@@ -469,10 +470,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
       });
     }
 
-    // this.route.params.subscribe((params) => {
-    //   console.log(params);
-
-
     this.gameService.getPeerId().subscribe((peerId: string) => {
       console.log('get peer', peerId);
 
@@ -485,20 +482,8 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
       });
 
       myPeer.on('open', userId => {
-        console.log('opened');
         this.socket.emit('join-room', peerId, userId);
       });
-
-
-      // myPeer.on('connection', (conn: DataConnection) => {
-      //   console.log('connection');
-      //   conn.on('open', () => {
-      //     console.log('opened');
-      //     console.log('opened');
-      //     this.socket.emit('join-room', peerId, this.currentUserId);
-      //   });
-      // });
-
       navigator.mediaDevices.getUserMedia({
         audio: true,
         video: true,
@@ -508,9 +493,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
           return null;
         })
         .then((stream: MediaStream | null) => {
-          if (stream) {
-            this.addMyVideo(stream);
-          }
 
           myPeer.on('call', (call) => {
             console.log('receiving call...', call);
@@ -554,16 +536,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
       });
 
     });
-    // });
 
-  }
-
-  addMyVideo(stream: MediaStream) {
-    // this.videos.push({
-    //   muted: true,
-    //   srcObject: stream,
-    //   userId: this.currentUserId,
-    // });
   }
 
   addOtherUserVideo(userId: string, stream: MediaStream) {
