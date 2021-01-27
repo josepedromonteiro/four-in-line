@@ -41,14 +41,6 @@ app-game {
       justify-content: center;
       align-items: center;
 
-      //background: rgba(0, 0, 0, 0.08);
-      //height: 100%;
-      //border-radius: 30px;
-      //margin: 40px;
-      //box-shadow: 0 10px 100px 0 #00000075;
-
-
-
       &.player-1-stage video{
         border: 10px solid var(--player-1-color);
         transform: scaleX(-1);
