@@ -13,7 +13,7 @@ import { PlayerValue } from '../../../shared/enums/player-value.enum';
 import { DEFAULTS } from '../../../defaults';
 import { combineLatest, forkJoin, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { debounceTime, distinctUntilChanged, first, map, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, first, map, switchMap, take, tap } from 'rxjs/operators';
 
 import * as FP from 'fingerpose';
 import * as Handpose from '@tensorflow-models/handpose';
@@ -22,6 +22,9 @@ import Peer from 'peerjs';
 import { PeerService } from '../../../shared/services/peer/peer.service';
 import { ThemeService } from '../../../shared/services/theme.service';
 import { VoiceRecognitionService } from '../../../shared/services/voice-recognition.service';
+import { v4 as uuidv4 } from 'uuid';
+import { Socket } from 'ngx-socket-io';
+import { PlayerRole } from '../../../shared/enums/player-role.enum';
 
 export const gestureStrings: { [key: string]: string } = {
   thumbs_up: '👍',
@@ -32,6 +35,12 @@ export const gestureStrings: { [key: string]: string } = {
   palm: '🖐',
   rock: '🤘'
 };
+
+interface VideoElement {
+  muted: boolean;
+  srcObject: MediaStream;
+  userId: string;
+}
 
 @Component({
   selector: 'app-game',
@@ -56,6 +65,9 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private gameUtils: GameUtils;
 
+  private playerNumber$: Subject<number> = new Subject<number>();
+  public playerNumber: number;
+
   private cameraConstraints = {
     audio: false,
     video: {
@@ -77,6 +89,10 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   private myStream: MediaStream;
   private playerName: string;
 
+
+  currentUserId: string = uuidv4();
+  videos: VideoElement[] = [];
+
   constructor(private store: Store,
               private storage: LocalStorageService,
               public gameService: GameService,
@@ -86,7 +102,8 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
               private peerService: PeerService,
               private themeService: ThemeService,
               private voiceRecognitionService: VoiceRecognitionService,
-              private elRef: ElementRef) {
+              private elRef: ElementRef,
+              private socket: Socket) {
     this.gestureChanged = new Subject<string>();
     this.gestureChanged.pipe(
       distinctUntilChanged(),
@@ -180,7 +197,16 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private initViewComponents(): void {
-    this.initCamera();
+    if (this.playerNumber) {
+      this.initCamera(this.playerNumber);
+      return;
+    }
+
+    this.playerNumber$.pipe(
+      take(1)
+    ).subscribe((value) => {
+      this.initCamera(value);
+    });
   }
 
   private boardUpdated(): void {
@@ -227,10 +253,24 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     // identify my role for this match (check localStorage)
     const currentRole = this.storage.getMyRoleForMatch(this.gameService.matchId);
 
+    if (currentRole === PlayerRole.Player1) {
+      this.playerNumber$.next(1);
+      this.playerNumber = 1;
+    }
+
+    if (currentRole === PlayerRole.Player2) {
+      this.playerNumber$.next(2);
+      this.playerNumber = 2;
+    }
+
+
     // if I have no role and there aren't 2 players yet, I become the player 2
     if (currentRole === null && this.playersCount < 2) {
 
       // prompt player 2 to get his nickname
+
+      this.playerNumber$.next(2);
+      this.playerNumber = 2;
 
       if (this.playerName) {
         this.gameService
@@ -306,8 +346,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   private async initCamera(playerNumber: number = 1) {
-
-    const video = document.querySelector(`#pose-video-${playerNumber}`) as HTMLVideoElement;
+    const video = document.querySelector(`#my-video`) as HTMLVideoElement;
     video.width = this.cameraConstraints.video.width;
     video.height = this.cameraConstraints.video.height;
 
@@ -321,35 +360,10 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
           this.onCameraReady.next(stream);
 
           // identify my role for this match (check localStorage)
+          // Videocall
 
-          let peer: Peer;
-          const currentRole = this.storage.getMyRoleForMatch(this.gameService.matchId);
 
-          // if (currentRole === 1) {
-          //   peer = new Peer({ initiator: true, stream });
-          // } else {
-          //   peer = new Peer();
-          // }
-          // peer.on('signal', data => {
-          //   console.log('signal');
-          // });
-          //
-          // peer.on('data', data => {
-          //   console.log('data');
-          // });
-          //
-          // peer.on('stream', (streamReceived: MediaStream) => {
-          //   // got remote video stream, now let's show it in a video tag
-          //   const videoElement: HTMLVideoElement = document.querySelector('#pose-video-2');
-          //
-          //   if ('srcObject' in videoElement) {
-          //     videoElement.srcObject = streamReceived;
-          //   } else {
-          //     (videoElement as HTMLImageElement).src = window.URL.createObjectURL(streamReceived); // for older browsers
-          //   }
-          //
-          //   videoElement.play();
-          // });
+          this.setupVideoCall();
 
         })
         .catch((error) => {
@@ -360,8 +374,8 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private async initFingerPose(): Promise<void> {
 
-    const video = document.querySelector('#pose-video-1') as HTMLVideoElement;
-    const canvas = document.querySelector('#pose-canvas-1') as HTMLCanvasElement;
+    const video = document.querySelector('#my-video') as HTMLVideoElement;
+    const canvas = document.querySelector('#my-canvas') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d');
     // const resultLayer = document.querySelector('#pose-result') as HTMLDivElement;
 
@@ -428,64 +442,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     console.log('Starting predictions');
   }
 
-  // private connectVideo(stream: MediaStream) {
-  //   console.log('CREATED VIDEO');
-  //
-  //   this.peerService.peer.pipe(
-  //     take(1)
-  //   ).subscribe((peer: Peer) => {
-  //     const call = peer.call(peer.id, stream);
-  //     call.on('stream', (remoteStream: MediaStream) => {
-  //       const video = (this.theirVideo.nativeElement as HTMLVideoElement);
-  //       video.src = URL.createObjectURL(remoteStream);
-  //       video.play();
-  //     });
-  //   });
-  // }
-
-  // private anwserVideo() {
-  //   console.log('ANWSER VIDEO');
-  //   if (navigator.mediaDevices.getUserMedia) {
-  //     navigator.mediaDevices.getUserMedia(this.cameraConstraints)
-  //       .then((stream: MediaStream) => {
-  //         this.peerService.peer.pipe(
-  //           take(1)
-  //         ).subscribe((peer: Peer) => {
-  //           peer.on('call', (call_: Peer.MediaConnection) => {
-  //             call_.answer(stream);
-  //             call_.on('stream', (remoteStream: MediaStream) => {
-  //               const video = (this.theirVideo.nativeElement as HTMLVideoElement);
-  //               video.srcObject = remoteStream;
-  //               video.play();
-  //             });
-  //           });
-  //         });
-  //
-  //       })
-  //       .catch((error) => {
-  //         console.error('Something went wrong!', error);
-  //       });
-  //   }
-  // }
-
-
-  userId: string;
-  partnerId: string;
-  myEl: HTMLMediaElement;
-  partnerEl: HTMLMediaElement;
-
-  init(): Peer {
-    console.log('INIT');
-    this.myEl = this.elRef.nativeElement.querySelector('#pose-video-1');
-    this.partnerEl = this.elRef.nativeElement.querySelector('#pose-video-2');
-    return this.peerService.init(this.userId, this.myEl, this.partnerEl);
-  }
-
-  call() {
-    console.log('CALL');
-    this.peerService.call(this.partnerId);
-    // this.swapVideo('my-video');
-  }
 
   get isSpeechRecognitionEnabled(): boolean {
     return this.voiceRecognitionService.isSpeechRecognitionEnabled;
@@ -497,5 +453,133 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
   disableSpeechRecognition() {
     this.voiceRecognitionService.stop();
+  }
+
+  setupVideoCall() {
+    console.log(`Initialize Peer with id ${this.currentUserId}`);
+
+    const currentRole = this.storage.getMyRoleForMatch(this.gameService.matchId);
+    console.log(currentRole);
+    if (currentRole === 1) {
+      this.gameService.getPeerId().subscribe((peerId) => {
+        console.log('get peer to set', peerId);
+        if (!peerId) {
+          this.gameService.setPeerId(this.currentUserId);
+        }
+      });
+    }
+
+    // this.route.params.subscribe((params) => {
+    //   console.log(params);
+
+
+    this.gameService.getPeerId().subscribe((peerId: string) => {
+      console.log('get peer', peerId);
+
+
+      const myPeer = new Peer(this.currentUserId, {
+        key: 'peerjs',
+        host: 'connect-4-peerjs.herokuapp.com',
+        port: 443,
+        secure: true
+      });
+
+      myPeer.on('open', userId => {
+        console.log('opened');
+        this.socket.emit('join-room', peerId, userId);
+      });
+
+
+      // myPeer.on('connection', (conn: DataConnection) => {
+      //   console.log('connection');
+      //   conn.on('open', () => {
+      //     console.log('opened');
+      //     console.log('opened');
+      //     this.socket.emit('join-room', peerId, this.currentUserId);
+      //   });
+      // });
+
+      navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+      })
+        .catch((err) => {
+          console.error('[Error] Not able to retrieve user media:', err);
+          return null;
+        })
+        .then((stream: MediaStream | null) => {
+          if (stream) {
+            this.addMyVideo(stream);
+          }
+
+          myPeer.on('call', (call) => {
+            console.log('receiving call...', call);
+            call.answer(stream);
+
+            call.on('stream', (otherUserVideoStream: MediaStream) => {
+              console.log('receiving other stream', otherUserVideoStream);
+
+              this.addOtherUserVideo(call.metadata.userId, otherUserVideoStream);
+            });
+
+            call.on('error', (err) => {
+              console.error(err);
+            });
+          });
+
+          this.socket.on('user-connected', (userId) => {
+            console.log('Receiving user-connected event', `Calling ${userId}`);
+
+            // Let some time for new peers to be able to answer
+            setTimeout(() => {
+              const call = myPeer.call(userId, stream, {
+                metadata: { userId: this.currentUserId },
+              });
+              call.on('stream', (otherUserVideoStream: MediaStream) => {
+                console.log('receiving other user stream after his connection');
+                this.addOtherUserVideo(userId, otherUserVideoStream);
+              });
+
+              call.on('close', () => {
+                this.videos = this.videos.filter((video) => video.userId !== userId);
+              });
+            }, 1000);
+          });
+        });
+
+
+      this.socket.on('user-disconnected', (userId) => {
+        console.log(`receiving user-disconnected event from ${userId}`);
+        this.videos = this.videos.filter(video => video.userId !== userId);
+      });
+
+    });
+    // });
+
+  }
+
+  addMyVideo(stream: MediaStream) {
+    // this.videos.push({
+    //   muted: true,
+    //   srcObject: stream,
+    //   userId: this.currentUserId,
+    // });
+  }
+
+  addOtherUserVideo(userId: string, stream: MediaStream) {
+    const alreadyExisting = this.videos.some(video => video.userId === userId);
+    if (alreadyExisting) {
+      console.log(this.videos, userId);
+      return;
+    }
+    this.videos.push({
+      muted: false,
+      srcObject: stream,
+      userId,
+    });
+  }
+
+  onLoadedMetadata(event: Event) {
+    (event.target as HTMLVideoElement).play();
   }
 }

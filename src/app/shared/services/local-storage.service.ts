@@ -49,7 +49,6 @@ export class LocalStorageService {
   getMyRoleForMatch(matchId: string): PlayerRole {
     const data = this.get();
     const role = data.match[matchId];
-    console.log('role', role);
     if (!role) {
       return null;
     }

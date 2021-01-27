@@ -47,12 +47,28 @@ app-game {
       //margin: 40px;
       //box-shadow: 0 10px 100px 0 #00000075;
 
+
+
+      &.player-1-stage video{
+        border: 10px solid var(--player-1-color);
+        transform: scaleX(-1);
+      }
+
+      &.player-2-stage video{
+        border: 10px solid var(--player-2-color);
+      }
+
+      &.my-area{
+        transform: scale(.7);
+      }
+
       video {
         transform: scaleX(-1);
         border-radius: 30px;
-        border: 10px solid var(--primary-dark);
         margin-left: 80px;
         margin-right: 80px;
+        margin-bottom: 40px;
+        max-width: 320px;
       }
 
       canvas{

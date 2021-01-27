@@ -7,6 +7,9 @@ import { RouterModule, Routes } from '@angular/router';
 import { PlayersHudComponent } from './components/players-hud/players-hud.component';
 import {ClipboardModule} from 'ngx-clipboard';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
+
+const config: SocketIoConfig = { url: 'https://connect-4-server-isep.herokuapp.com/', options: {} };
 
 const ROUTES: Routes = [
   { path: ':id/:name', component: GameComponent },
@@ -23,7 +26,8 @@ const ROUTES: Routes = [
     SharedModule,
     RouterModule.forChild(ROUTES),
     ClipboardModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    SocketIoModule.forRoot(config)
   ]
 })
 export class GameModule {

@@ -17,21 +17,27 @@
     <div class="game-zone">
 
       <div class="left-panel">
-        <div class="player-1-stage stage">
-          <video id="pose-video-1" class="layer" autoplay></video>
-          <canvas id="pose-canvas-1" class="layer"></canvas>
+
+        <div class="player-{{playerNumber === 1 ? 2 : 1}}-stage stage">
+          <video *ngFor="let video of videos" class="layer"
+                 [srcObject]="video.srcObject"
+                 (loadedmetadata)="onLoadedMetadata($event)"
+                 [muted]="video.muted"></video>
         </div>
 
 
-<!--        <div class="player-2-stage stage">-->
-<!--          <video id="pose-video-2" class="layer" autoplay></video>-->
-<!--        </div>-->
+        <div class="player-{{playerNumber}}-stage stage my-area">
+          <video id="my-video" class="layer" autoplay></video>
+          <canvas id="my-canvas" class="layer"></canvas>
+        </div>
 
         <div>
-          <button type="button" mat-raised-button *ngIf="!isSpeechRecognitionEnabled" (click)="enableSpeechRecognition()" [disabled]="!isMyTurn">
+          <button type="button" mat-raised-button *ngIf="!isSpeechRecognitionEnabled"
+                  (click)="enableSpeechRecognition()" [disabled]="!isMyTurn">
             Enable Voice Control
           </button>
-          <button type="button" mat-raised-button *ngIf="isSpeechRecognitionEnabled" (click)="disableSpeechRecognition()" [disabled]="!isMyTurn">
+          <button type="button" mat-raised-button *ngIf="isSpeechRecognitionEnabled"
+                  (click)="disableSpeechRecognition()" [disabled]="!isMyTurn">
             Disable Voice Control
           </button>
         </div>
