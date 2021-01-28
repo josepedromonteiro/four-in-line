@@ -353,18 +353,13 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia(this.cameraConstraints)
-        .then(async (stream: MediaStream) => {
+        .then((stream: MediaStream) => {
           video.srcObject = stream;
           // Init fingerpose
           this.initFingerPose();
           this.myStream = stream;
           this.onCameraReady.next(stream);
-
-          // identify my role for this match (check localStorage)
-          // Videocall
-
-
-          await this.setupVideoCall();
+          this.setupVideoCall(this.myStream);
 
         })
         .catch((error) => {
@@ -456,28 +451,27 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     this.voiceRecognitionService.stop();
   }
 
-  async setupVideoCall() {
+  setupVideoCall(stream: MediaStream): void {
     console.log(`Initialize Peer with id ${this.currentUserId}`);
 
     const currentRole = this.storage.getMyRoleForMatch(this.gameService.matchId);
-    console.log(currentRole);
     if (currentRole === 1) {
       this.gameService.getPeerId().subscribe(async (peerId: string) => {
         console.log('get peer to set', peerId);
         if (!peerId) {
           this.gameService.setPeerId(this.currentUserId);
-          this.listenForEvents(this.currentUserId);
+          this.listenForEvents(this.currentUserId, stream);
         }
       });
     }
 
     this.gameService.getPeerId().subscribe((peerId: string) => {
-      this.listenForEvents(peerId);
+      this.listenForEvents(peerId, stream);
     });
 
   }
 
-  private listenForEvents(peerId): void {
+  private listenForEvents(peerId: string, stream: MediaStream): void {
     const myPeer = new Peer(this.currentUserId, {
       key: 'peerjs',
       host: 'connect-4-peerjs.herokuapp.com',
@@ -488,50 +482,40 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     myPeer.on('open', userId => {
       this.socket.emit('join-room', peerId, userId);
     });
-    navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: true,
-    })
-      .catch((err) => {
-        console.error('[Error] Not able to retrieve user media:', err);
-        return null;
-      })
-      .then((stream: MediaStream | null) => {
 
-        myPeer.on('call', (call) => {
-          console.log('receiving call...', call);
-          call.answer(stream);
+    myPeer.on('call', (call) => {
+      console.log('receiving call...', call);
+      call.answer(stream);
 
-          call.on('stream', (otherUserVideoStream: MediaStream) => {
-            console.log('receiving other stream', otherUserVideoStream);
+      call.on('stream', (otherUserVideoStream: MediaStream) => {
+        console.log('receiving other stream', otherUserVideoStream);
 
-            this.addOtherUserVideo(call.metadata.userId, otherUserVideoStream);
-          });
-
-          call.on('error', (err) => {
-            console.error(err);
-          });
-        });
-
-        this.socket.on('user-connected', (userId) => {
-          console.log('Receiving user-connected event', `Calling ${userId}`);
-
-          // Let some time for new peers to be able to answer
-          setTimeout(() => {
-            const call = myPeer.call(userId, stream, {
-              metadata: { userId: this.currentUserId },
-            });
-            call.on('stream', (otherUserVideoStream: MediaStream) => {
-              console.log('receiving other user stream after his connection');
-              this.addOtherUserVideo(userId, otherUserVideoStream);
-            });
-
-            call.on('close', () => {
-              this.videos = this.videos.filter((video) => video.userId !== userId);
-            });
-          }, 1000);
-        });
+        this.addOtherUserVideo(call.metadata.userId, otherUserVideoStream);
       });
+
+      call.on('error', (err) => {
+        console.error(err);
+      });
+    });
+
+    this.socket.on('user-connected', (userId) => {
+      console.log('Receiving user-connected event', `Calling ${userId}`);
+
+      // Let some time for new peers to be able to answer
+      setTimeout(() => {
+        const call = myPeer.call(userId, stream, {
+          metadata: { userId: this.currentUserId },
+        });
+        call.on('stream', (otherUserVideoStream: MediaStream) => {
+          console.log('receiving other user stream after his connection');
+          this.addOtherUserVideo(userId, otherUserVideoStream);
+        });
+
+        call.on('close', () => {
+          this.videos = this.videos.filter((video) => video.userId !== userId);
+        });
+      }, 1000);
+    });
 
 
     this.socket.on('user-disconnected', (userId) => {

@@ -17,10 +17,10 @@ import { Player } from '../../../models/player.model';
 import { PlayerRole } from '../../../shared/enums/player-role.enum';
 import { Board } from '../../../models/board.model';
 import { gestureStrings } from '../../containers/game/game.component';
-import { VoiceRecognitionService } from 'src/app/shared/services/voice-recognition.service';
-import { VoiceAction, VoiceActionEnum } from 'src/app/shared/enums/voice-action.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { VoiceAction, VoiceActionEnum } from '../../../shared/enums/voice-action.enum';
+import { VoiceRecognitionService } from '../../../shared/services/voice-recognition.service';
 
 @Component({
   selector: 'app-board',
@@ -69,20 +69,18 @@ export class BoardComponent implements OnChanges, OnDestroy {
     this.voiceRecognitionService.onVoiceChanged.pipe(
       takeUntil(this.destroyer)
     ).subscribe((value: VoiceAction) => {
-      if (value.action == VoiceActionEnum.COLUMN) {
-        this.onCellHover(0, value.value as number, true);
-      }
-    });
-
-    this.voiceRecognitionService.onVoiceChanged.pipe(
-      takeUntil(this.destroyer)
-    ).subscribe((value: VoiceAction) => {
       if (this.isDisabled) {
         return;
       }
-      if (value.action == VoiceActionEnum.START) {
+
+      if (value.action === VoiceActionEnum.COLUMN) {
+        this.onCellHover(0, value.value as number, true);
+      }
+
+      if (value.action === VoiceActionEnum.START) {
         this.onCellClick(0, this.lastSelectedColumn);
       }
+
     });
   }
 
