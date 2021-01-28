@@ -37,6 +37,7 @@ export class VoiceRecognitionService {
     this.recognition.start();
     this.isSpeechRecognitionEnabled = true;
     console.log('Speech recognition started');
+
     this.recognition.addEventListener('end', () => {
       if (this.isSpeechRecognitionEnabled) {
         this.recognition.start();

@@ -114,7 +114,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // this.initCamera();
+    this.voiceRecognitionService.init();
     this.enableSpeechRecognition();
   }
 
@@ -437,7 +437,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     estimateHands();
     console.log('Starting predictions');
   }
-
 
   get isSpeechRecognitionEnabled(): boolean {
     return this.voiceRecognitionService.isSpeechRecognitionEnabled;

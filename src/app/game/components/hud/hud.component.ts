@@ -3,8 +3,6 @@ import { Player } from '../../../models/player.model';
 import { PlayerRole } from '../../../shared/enums/player-role.enum';
 import * as Clipboard from 'clipboard';
 import { MatButton } from '@angular/material/button';
-import { VoiceRecognitionService } from 'src/app/shared/services/voice-recognition.service'
-import { Store } from 'src/app/store';
 
 @Component({
   selector: 'app-hud',
@@ -26,9 +24,7 @@ export class HudComponent implements AfterViewInit {
   @ViewChild('copyLinkBtn')
   copyLinkBtn: MatButton;
 
-  constructor(private service: VoiceRecognitionService, private store: Store) {
-    this.service.init()
-  }
+  constructor() { }
 
   ngAfterViewInit() {
     if (this.copyLinkBtn) {
