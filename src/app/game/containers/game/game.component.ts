@@ -353,7 +353,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia(this.cameraConstraints)
-        .then((stream: MediaStream) => {
+        .then(async (stream: MediaStream) => {
           video.srcObject = stream;
           // Init fingerpose
           this.initFingerPose();
@@ -364,7 +364,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
           // Videocall
 
 
-          this.setupVideoCall();
+          await this.setupVideoCall();
 
         })
         .catch((error) => {
@@ -456,7 +456,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     this.voiceRecognitionService.stop();
   }
 
-  setupVideoCall() {
+  async setupVideoCall() {
     console.log(`Initialize Peer with id ${this.currentUserId}`);
 
     const currentRole = this.storage.getMyRoleForMatch(this.gameService.matchId);
@@ -465,13 +465,12 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
       this.gameService.getPeerId().subscribe((peerId) => {
         console.log('get peer to set', peerId);
         if (!peerId) {
-          this.gameService.setPeerId(this.currentUserId);
+          await this.gameService.setPeerId(this.currentUserId);
         }
       });
     }
 
     this.gameService.getPeerId().subscribe((peerId: string) => {
-      console.log('get peer', peerId);
 
 
       const myPeer = new Peer(this.currentUserId, {
